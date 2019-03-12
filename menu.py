@@ -34,7 +34,8 @@ def main():
         return
       # SSH to chosen device
       chosenDevice = menuList[choice]
-      print "for item: %s, ssh to: %s" % (chosenDevice, menuDict[chosenDevice]['conn'])
+      print "for item: %s, Run: 'ssh %s'" % (chosenDevice, menuDict[chosenDevice]['conn'])
+      os.system('ssh ' + menuDict[chosenDevice]['conn'])
       time.sleep(1)
     except (ValueError, IndexError):
       print 'Exception caught: %s' % IndexError
