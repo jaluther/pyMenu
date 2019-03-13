@@ -12,7 +12,7 @@ for i in menuList:
 
 def main():
   while True:
-    # clear screen
+    # clear screen at start of every loop
     os.system('clear')
     # Print header
     print '#'*30
@@ -22,25 +22,30 @@ def main():
     for i in menuList:
       print '%s\t%s' % (menuList.index(i)+1, i)
     # print trailer
-    print '999\tExit'
+    print ''
+    print 'q\tQuit'
     # get chosen input 
     choice = raw_input(">> ")
     try:
+      # If 'q' exit while loop (return)
+      if choice.lower() == 'q':
+        return
       # prepare vars (decrement by 1 to match dict keys)
       choice = int(choice)
       choice -=1
-      # Check boundary
-      if choice == 998:
-        return
+      # if input below 0 skip loop (pass) - list behavour undesirable
+      if choice < 0:
+        raise Exception('number out of range')
       # SSH to chosen device
       chosenDevice = menuList[choice]
       print "for item: %s, Run: 'ssh %s'" % (chosenDevice, menuDict[chosenDevice]['conn'])
       os.system('ssh ' + menuDict[chosenDevice]['conn'])
-      time.sleep(1)
-    except (ValueError, IndexError):
-      print 'Exception caught: %s' % IndexError
-      time.sleep(1)
+    except Exception, e:
+      # for DEBUG, uncomment
+      #print 'Exception caught: %s' % e
       pass
+    # for DEBUG, uncomment
+    #time.sleep(1)
 
 if __name__ == "__main__":
   main()
