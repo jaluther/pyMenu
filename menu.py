@@ -1,16 +1,20 @@
 #!/usr/bin/python
+# 
+# Written by: James Luther
+# https://github.com/jaluther/pyMenu
+
 import os,time
 import yaml,json
 
 debug=False
+defaultid=False
+#defaultid='james'
 
 # Build menu data from YAML file
 with open('devices.yml', 'r') as stream:
   menuDict = yaml.load(stream)
 
 menuList = sorted(menuDict.keys())
-for i in menuList:
-  print "for item: %s, ssh to: %s" % (i, menuDict[i]['conn'])
 
 def printMenu(menuList):
   # clear screen 
@@ -25,6 +29,18 @@ def printMenu(menuList):
   # print trailer
   print ''
   print 'q\tQuit'
+
+def buildConn(choice):
+  chosenDevice = menuList[choice]
+  if menuDict[chosenDevice].has_key('id'):
+    conn = '%s@%s' % (menuDict[chosenDevice]['id'], menuDict[chosenDevice]['host'])
+  elif defaultid:
+    conn = '%s@%s' % (defaultid, menuDict[chosenDevice]['host'])
+  else:
+    id = raw_input("Username: >> ")
+    print '!!!!!! TIP: set default user id in python script !!!!!!'
+    conn = '%s@%s' % (id, menuDict[chosenDevice]['host'])
+  return conn
 
 def main():
   while True:
@@ -43,9 +59,9 @@ def main():
         raise Exception('number out of range')
 
       # SSH to chosen device
-      chosenDevice = menuList[choice]
-      print "CONNECT: 'ssh %s'" % (menuDict[chosenDevice]['conn'])
-      os.system('ssh ' + menuDict[chosenDevice]['conn'])
+      conn = buildConn(choice)
+      print "CONNECT: 'ssh %s'" % (conn)
+      os.system('ssh ' + conn)
     except Exception, e:
       if debug:
         print 'Exception caught: %s' % e

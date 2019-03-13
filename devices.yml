@@ -1,14 +1,17 @@
 ---
 vsrx1:
-  conn: james@vsrx1
+  host: vsrx1
   devType: junos
 nxos1:
-  conn: admin@192.168.229.55
+  host: 192.168.229.55
+  id: admin
   devType: nxos
 nxos2:
-  conn: admin@nxos2
+  host: nxos2
+  id: admin
   devType: nxos
 bigip5:
-  conn: root@bigip5
+  host: bigip5
+  id: root
   devType: bigip
 
