@@ -1,10 +1,11 @@
 ---
-# Example data
+# Example data to show different valid keys
 #
 # <parent key name>: display name in menu options (i.e. vsrx1, nxos1)
 # host: fqdn or ip address, used for SSH connection
 # id: username used for connection.  If left out default user id will be used
 # devType: used in menu to give filtered results
+#
 vsrx1:
   host: vsrx1
   devType: junos
