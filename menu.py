@@ -101,6 +101,7 @@ def devTypeMenu():
       for k,v in fullDeviceDict.items():
         if v['devType'] == devTypeList[choice]:
           filteredDevList.append(k)
+      filteredDevList.sort()
       deviceListMenu(filteredDevList)
 
     except Exception, e:
