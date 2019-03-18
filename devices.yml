@@ -9,16 +9,20 @@
 vsrx1:
   host: vsrx1
   devType: junos
+  env: prod
 nxos1:
   host: 192.168.229.55
   id: admin
   devType: nxos
+  env: dev
 nxos2:
   host: nxos2
   id: admin
   devType: nxos
+  env: prod
 bigip5:
   host: bigip5
   id: root
   devType: bigip
+  env: prod
 

@@ -15,12 +15,26 @@ with open('devices.yml', 'r') as stream:
   fullDeviceDict = yaml.load(stream)
 fullDeviceList = sorted(fullDeviceDict.keys())
 
-# get a list of device types
-devTypeList = []
-for k,v in fullDeviceDict.items():
-  devTypeList.append(v['devType'])
-# remove duplicates
-devTypeList = list(set(devTypeList))
+try:
+  # get a list of device types
+  devTypeList = []
+  for k,v in fullDeviceDict.items():
+    devTypeList.append(v['devType'])
+  # remove duplicates
+  devTypeList = list(set(devTypeList))
+
+  # get a list of environment types
+  envList = []
+  for k,v in fullDeviceDict.items():
+    envList.append(v['env'])
+  # remove duplicates
+  envList = list(set(envList))
+  if debug:
+    print devTypeList
+    print envList
+except Exception, e:
+  print 'devices.yml formatting error: %s key missing' % e
+  quit()
 
 def printMenu(mList):
   # clear screen
@@ -61,8 +75,9 @@ def buildConn(deviceList,choice):
 def topMenu():
   while True:
     topMenuList = [
-            'All devices',
-            'Device Type']
+            'All devices menu',
+            'Device Type menu',
+            'Environment menu']
     printMenu(topMenuList)
     # get chosen input
     choice = raw_input(">> ")
@@ -77,6 +92,8 @@ def topMenu():
         deviceListMenu(fullDeviceList)
       if choice == 1:
         devTypeMenu()
+      if choice == 2:
+        envMenu()
 
     except Exception, e:
       if debug:
@@ -111,6 +128,31 @@ def devTypeMenu():
     if debug:
       time.sleep(1)
 
+def envMenu():
+  while True:
+    printMenu(envList)
+    # get chosen input
+    choice = raw_input(">> ")
+    try:
+      # If 'q' exit while loop (return)
+      if choice.lower() == 'q':
+        return
+      choice = parseChoice(choice)
+
+      # Create a filtered list and call device list menu
+      filteredDevList = []
+      for k,v in fullDeviceDict.items():
+        if v['env'] == envList[choice]:
+          filteredDevList.append(k)
+      filteredDevList.sort()
+      deviceListMenu(filteredDevList)
+
+    except Exception, e:
+      if debug:
+        print 'Exception caught: %s' % e
+      pass
+    if debug:
+      time.sleep(1)
 
 def deviceListMenu(deviceList):
   while True:
