@@ -13,13 +13,13 @@ defaultid=False
 # Build menu data from YAML file
 with open('devices.yml', 'r') as stream:
   fullDeviceDict = yaml.load(stream)
-
 fullDeviceList = sorted(fullDeviceDict.keys())
 
-# get a list of unique device types
+# get a list of device types
 devTypeList = []
 for k,v in fullDeviceDict.items():
   devTypeList.append(v['devType'])
+# remove duplicates
 devTypeList = list(set(devTypeList))
 
 def printMenu(mList):
@@ -49,13 +49,13 @@ def buildConn(deviceList,choice):
   # build out connection string i.e. username@ip/hostname
   chosenDevice = deviceList[choice]
   if fullDeviceDict[chosenDevice].has_key('id'):
-    conn = '%s@%s' % (fullDeviceDict[chosenDevice]['id'], fullDeviceDict[chosenDevice]['host'])
+    id = fullDeviceDict[chosenDevice]['id']
   elif defaultid:
-    conn = '%s@%s' % (defaultid, fullDeviceDict[chosenDevice]['host'])
+    id = defaultid
   else:
     id = raw_input("Username: >> ")
     print '!!!!!! TIP: set default user id in python script !!!!!!'
-    conn = '%s@%s' % (id, fullDeviceDict[chosenDevice]['host'])
+  conn = '%s@%s' % (id, fullDeviceDict[chosenDevice]['host'])
   return conn
 
 def topMenu():
