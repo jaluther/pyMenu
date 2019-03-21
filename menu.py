@@ -20,15 +20,17 @@ try:
   devTypeList = []
   for k,v in fullDeviceDict.items():
     devTypeList.append(v['devType'])
-  # remove duplicates
+  # remove duplicates and sort
   devTypeList = list(set(devTypeList))
+  devTypeList.sort()
 
   # get a list of environment types
   envList = []
   for k,v in fullDeviceDict.items():
     envList.append(v['env'])
-  # remove duplicates
+  # remove duplicates and sort
   envList = list(set(envList))
+  envList.sort()
   if debug:
     print devTypeList
     print envList
