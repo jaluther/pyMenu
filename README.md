@@ -1,2 +1,3 @@
 # pyMenu
-Simple menu for python
+Simple SSH menu using python and YAML data model
+
