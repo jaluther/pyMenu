@@ -12,33 +12,33 @@ defaultid=False
 
 # Build menu data from YAML file
 with open('devices.yml', 'r') as stream:
-  fullDeviceDict = yaml.load(stream)
-fullDeviceList = sorted(fullDeviceDict.keys())
+  full_device_dict = yaml.load(stream)
+full_device_list = sorted(full_device_dict.keys())
 
 try:
   # get a list of device types
-  devTypeList = []
-  for k,v in fullDeviceDict.items():
-    devTypeList.append(v['devType'])
+  dev_type_list = []
+  for k,v in full_device_dict.items():
+    dev_type_list.append(v['dev_type'])
   # remove duplicates and sort
-  devTypeList = list(set(devTypeList))
-  devTypeList.sort()
+  dev_type_list = list(set(dev_type_list))
+  dev_type_list.sort()
 
   # get a list of environment types
-  envList = []
-  for k,v in fullDeviceDict.items():
-    envList.append(v['env'])
+  env_list = []
+  for k,v in full_device_dict.items():
+    env_list.append(v['env'])
   # remove duplicates and sort
-  envList = list(set(envList))
-  envList.sort()
+  env_list = list(set(env_list))
+  env_list.sort()
   if debug:
-    print devTypeList
-    print envList
+    print dev_type_list
+    print env_list
 except Exception, e:
   print 'devices.yml formatting error: %s key missing' % e
   quit()
 
-def printMenu(mList):
+def PrintMenu(menu_list):
   # clear screen
   os.system('clear')
   # Print header
@@ -46,13 +46,13 @@ def printMenu(mList):
   print '# SSH Menu'
   print '#'*30
   # created numbered list (increment to start at 1)
-  for i in mList:
-    print '%s\t%s' % (mList.index(i)+1, i)
+  for i in menu_list:
+    print '%s\t%s' % (menu_list.index(i)+1, i)
   # print trailer
   print ''
   print 'q\tBack'
 
-def parseChoice(choice):
+def ParseChoice(choice):
   # prepare vars (decrement by 1 to match dict keys)
   choice = int(choice)
   choice -=1
@@ -61,41 +61,41 @@ def parseChoice(choice):
     raise Exception('number out of range')
   return choice
 
-def buildConn(deviceList,choice):
+def BuildConn(device_list,choice):
   # build out connection string i.e. username@ip/hostname
-  chosenDevice = deviceList[choice]
-  if fullDeviceDict[chosenDevice].has_key('id'):
-    id = fullDeviceDict[chosenDevice]['id']
+  chosen_device = device_list[choice]
+  if full_device_dict[chosen_device].has_key('id'):
+    id = full_device_dict[chosen_device]['id']
   elif defaultid:
     id = defaultid
   else:
     id = raw_input("Username: >> ")
     print '!!!!!! TIP: set default user id in python script !!!!!!'
-  conn = '%s@%s' % (id, fullDeviceDict[chosenDevice]['host'])
+  conn = '%s@%s' % (id, full_device_dict[chosen_device]['host'])
   return conn
 
-def topMenu():
+def TopMenu():
   while True:
-    topMenuList = [
+    top_menu_list = [
             'All devices menu',
             'Device Type menu',
             'Environment menu']
-    printMenu(topMenuList)
+    PrintMenu(top_menu_list)
     # get chosen input
     choice = raw_input(">> ")
     try:
       # If 'q' exit while loop (return)
       if choice.lower() == 'q':
         return
-      choice = parseChoice(choice)
+      choice = ParseChoice(choice)
 
-      # Static menu list (based on topMenuList)
+      # Static menu list (based on top_menu_list)
       if choice == 0:
-        deviceListMenu(fullDeviceList)
+        DeviceListMenu(full_device_list)
       if choice == 1:
-        devTypeMenu()
+        DevTypeMenu()
       if choice == 2:
-        envMenu()
+        EnvMenu()
 
     except Exception, e:
       if debug:
@@ -104,24 +104,24 @@ def topMenu():
     if debug:
       time.sleep(1)
 
-def devTypeMenu():
+def DevTypeMenu():
   while True:
-    printMenu(devTypeList)
+    PrintMenu(dev_type_list)
     # get chosen input
     choice = raw_input(">> ")
     try:
       # If 'q' exit while loop (return)
       if choice.lower() == 'q':
         return
-      choice = parseChoice(choice)
+      choice = ParseChoice(choice)
 
       # Create a filtered list a call device list menu
-      filteredDevList = []
-      for k,v in fullDeviceDict.items():
-        if v['devType'] == devTypeList[choice]:
-          filteredDevList.append(k)
-      filteredDevList.sort()
-      deviceListMenu(filteredDevList)
+      filtered_dev_list = []
+      for k,v in full_device_dict.items():
+        if v['devType'] == dev_type_list[choice]:
+          filtered_dev_list.append(k)
+      filtered_dev_list.sort()
+      DeviceListMenu(filtered_dev_list)
 
     except Exception, e:
       if debug:
@@ -130,24 +130,24 @@ def devTypeMenu():
     if debug:
       time.sleep(1)
 
-def envMenu():
+def EnvMenu():
   while True:
-    printMenu(envList)
+    PrintMenu(env_list)
     # get chosen input
     choice = raw_input(">> ")
     try:
       # If 'q' exit while loop (return)
       if choice.lower() == 'q':
         return
-      choice = parseChoice(choice)
+      choice = ParseChoice(choice)
 
       # Create a filtered list and call device list menu
-      filteredDevList = []
-      for k,v in fullDeviceDict.items():
-        if v['env'] == envList[choice]:
-          filteredDevList.append(k)
-      filteredDevList.sort()
-      deviceListMenu(filteredDevList)
+      filtered_dev_list = []
+      for k,v in full_device_dict.items():
+        if v['env'] == env_list[choice]:
+          filtered_dev_list.append(k)
+      filtered_dev_list.sort()
+      DeviceListMenu(filtered_dev_list)
 
     except Exception, e:
       if debug:
@@ -156,19 +156,19 @@ def envMenu():
     if debug:
       time.sleep(1)
 
-def deviceListMenu(deviceList):
+def DeviceListMenu(device_list):
   while True:
-    printMenu(deviceList)
+    PrintMenu(device_list)
     # get chosen input
     choice = raw_input(">> ")
     try:
       # If 'q' exit while loop (return)
       if choice.lower() == 'q':
         return
-      choice = parseChoice(choice)
+      choice = ParseChoice(choice)
 
       # SSH to chosen device
-      conn = buildConn(deviceList,choice)
+      conn = BuildConn(device_list,choice)
       print "CONNECT: 'ssh %s'" % (conn)
       os.system('ssh ' + conn)
     except Exception, e:
@@ -179,5 +179,5 @@ def deviceListMenu(deviceList):
       time.sleep(1)
 
 if __name__ == "__main__":
-  topMenu()
+  TopMenu()
 
