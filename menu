@@ -79,7 +79,8 @@ def TopMenu():
     top_menu_list = [
             'All devices menu',
             'Device Type menu',
-            'Environment menu']
+            'Environment menu',
+            'Search Menu']
     PrintMenu(top_menu_list)
     # get chosen input
     choice = raw_input(">> ")
@@ -96,6 +97,8 @@ def TopMenu():
         DevTypeMenu()
       if choice == 2:
         EnvMenu()
+      if choice == 3:
+        SearchMenu()
 
     except Exception, e:
       if debug:
@@ -118,7 +121,7 @@ def DevTypeMenu():
       # Create a filtered list a call device list menu
       filtered_dev_list = []
       for k,v in full_device_dict.items():
-        if v['devType'] == dev_type_list[choice]:
+        if v['dev_type'] == dev_type_list[choice]:
           filtered_dev_list.append(k)
       filtered_dev_list.sort()
       DeviceListMenu(filtered_dev_list)
@@ -145,6 +148,31 @@ def EnvMenu():
       filtered_dev_list = []
       for k,v in full_device_dict.items():
         if v['env'] == env_list[choice]:
+          filtered_dev_list.append(k)
+      filtered_dev_list.sort()
+      DeviceListMenu(filtered_dev_list)
+
+    except Exception, e:
+      if debug:
+        print 'Exception caught: %s' % e
+      pass
+    if debug:
+      time.sleep(1)
+
+def SearchMenu():
+  while True:
+    PrintMenu([])
+    # get chosen input
+    choice = raw_input("Starts With >> ")
+    try:
+      # If 'q' exit while loop (return)
+      if choice.lower() == 'q':
+        return
+
+      # Create a filtered list and call device list menu
+      filtered_dev_list = []
+      for k,v in full_device_dict.items():
+        if k.lower().startswith(choice.lower()):
           filtered_dev_list.append(k)
       filtered_dev_list.sort()
       DeviceListMenu(filtered_dev_list)

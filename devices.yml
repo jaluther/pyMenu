@@ -15,7 +15,7 @@ nxos1:
   id: admin
   dev_type: nxos
   env: dev
-nxos2:
+Nxos2:
   host: nxos2
   id: admin
   dev_type: nxos
