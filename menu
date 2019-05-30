@@ -6,7 +6,7 @@
 import os,time
 import yaml,json
 
-debug=False
+debug=True
 defaultid=False
 #defaultid='james'
 
@@ -38,7 +38,7 @@ except Exception as e:
   print ('devices.yml formatting error: %s key missing' % e)
   quit()
 
-def PrintMenu(menu_list):
+def PrintMenu(menu_list, show_quit=True):
   # clear screen
   os.system('clear')
   # Print header
@@ -49,8 +49,9 @@ def PrintMenu(menu_list):
   for i in menu_list:
     print('%s\t%s' % (menu_list.index(i)+1, i))
   # print trailer
-  print('')
-  print('q\tBack')
+  if show_quit:
+    print('')
+    print('q\tBack')
 
 def ParseChoice(choice):
   # prepare vars (decrement by 1 to match dict keys)
@@ -161,20 +162,20 @@ def EnvMenu():
 
 def SearchMenu():
   while True:
-    PrintMenu([])
+    PrintMenu([], show_quit=False)
     # get chosen input
     choice = raw_input("Starts With >> ")
     try:
-      # If 'q' exit while loop (return)
-      if choice.lower() == 'q':
-        return
-
       # Create a filtered list and call device list menu
       filtered_dev_list = []
       for k,v in full_device_dict.items():
         if k.lower().startswith(choice.lower()):
           filtered_dev_list.append(k)
       filtered_dev_list.sort()
+      if filtered_dev_list == []:
+        print('!!!! No matching devices found !!!!')
+        pause = raw_input('Any key to continue >> ')
+        return
       DeviceListMenu(filtered_dev_list)
 
     except Exception as e:
@@ -183,6 +184,8 @@ def SearchMenu():
       pass
     if debug:
       time.sleep(1)
+
+    return
 
 def DeviceListMenu(device_list):
   while True:
