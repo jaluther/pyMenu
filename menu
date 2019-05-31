@@ -6,7 +6,7 @@
 import os,time
 import yaml,json
 
-debug=True
+debug=False
 defaultid=False
 #defaultid='james'
 
