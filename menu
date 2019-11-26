@@ -1,42 +1,27 @@
 #!/usr/bin/python
-#
 # Written by: James Luther
 # https://github.com/jaluther/pyMenu
 
 import os,time
 import yaml,json
 
-debug=False
-defaultid=False
-#defaultid='james'
+DEBUG = False
+DEVICES_FILE = 'devices.yml'
 
-# Build menu data from YAML file
-with open('devices.yml', 'r') as stream:
-  full_device_dict = yaml.load(stream)
-full_device_list = sorted(full_device_dict.keys())
+def loadDevices(option):
+  if option == 'file':
+    with open(DEVICES_FILE, 'r') as stream:
+      full_device_dict = yaml.safe_load(stream)
+    full_device_list = sorted(full_device_dict.keys())
+    return full_device_dict,full_device_list
+  if option == 'db':
+    print('not implemented yet')
 
-try:
-  # get a list of device types
-  dev_type_list = []
-  for k,v in full_device_dict.items():
-    dev_type_list.append(v['dev_type'])
-  # remove duplicates and sort
-  dev_type_list = list(set(dev_type_list))
-  dev_type_list.sort()
-
-  # get a list of environment types
-  env_list = []
-  for k,v in full_device_dict.items():
-    env_list.append(v['env'])
-  # remove duplicates and sort
-  env_list = list(set(env_list))
-  env_list.sort()
-  if debug:
-    print(dev_type_list)
-    print(env_list)
-except Exception as e:
-  print ('devices.yml formatting error: %s key missing' % e)
-  quit()
+def getUserID(option):
+  if option == 'linux':
+    return os.getenv('USER')
+  if option == 'prompt':
+    return raw_input("Username: >> ")
 
 def PrintMenu(menu_list, show_quit=True):
   # clear screen
@@ -54,138 +39,59 @@ def PrintMenu(menu_list, show_quit=True):
     print('q\tBack')
 
 def ParseChoice(choice):
+  choice_list = choice.split(' ')
+  choice_num = choice_list[0]
   # prepare vars (decrement by 1 to match dict keys)
-  choice = int(choice)
-  choice -=1
+  choice_num = int(choice_num)
+  choice_num -=1
   # if input below 0 skip loop (raise) - list behavour undesirable
-  if choice < 0:
+  if choice_num < 0:
     raise Exception('number out of range')
-  return choice
+  choice_dict = {'number': choice_num}
+  if len(choice_list) > 1:
+    choice_dict['id'] = choice_list[1]
+  if DEBUG:
+    print(choice_dict)
+  return choice_dict
 
-def BuildConn(device_list,choice):
+def BuildConn(device_list,choice_dict):
   # build out connection string i.e. username@ip/hostname
+  choice = choice_dict['number']
   chosen_device = device_list[choice]
-  if 'id' in full_device_dict[chosen_device]:
-    id = full_device_dict[chosen_device]['id']
-  elif defaultid:
-    id = defaultid
+  if 'id' in choice_dict:
+    uid = choice_dict['id']
   else:
-    id = raw_input("Username: >> ")
-    print('!!!!!! TIP: set default user id in python script !!!!!!')
-  conn = '%s@%s' % (id, full_device_dict[chosen_device]['host'])
+    uid = defaultid
+  conn = '%s@%s' % (uid, full_device_dict[chosen_device]['host'])
   return conn
-
-def TopMenu():
-  while True:
-    top_menu_list = [
-            'All devices menu',
-            'Device Type menu',
-            'Environment menu',
-            'Search Menu']
-    PrintMenu(top_menu_list)
-    # get chosen input
-    choice = raw_input(">> ")
-    try:
-      # If 'q' exit while loop (return)
-      if choice.lower() == 'q':
-        return
-      choice = ParseChoice(choice)
-
-      # Static menu list (based on top_menu_list)
-      if choice == 0:
-        DeviceListMenu(full_device_list)
-      if choice == 1:
-        DevTypeMenu()
-      if choice == 2:
-        EnvMenu()
-      if choice == 3:
-        SearchMenu()
-
-    except Exception as e:
-      if debug:
-        print('Exception caught: %s' % e)
-      pass
-    if debug:
-      time.sleep(1)
-
-def DevTypeMenu():
-  while True:
-    PrintMenu(dev_type_list)
-    # get chosen input
-    choice = raw_input(">> ")
-    try:
-      # If 'q' exit while loop (return)
-      if choice.lower() == 'q':
-        return
-      choice = ParseChoice(choice)
-
-      # Create a filtered list a call device list menu
-      filtered_dev_list = []
-      for k,v in full_device_dict.items():
-        if v['dev_type'] == dev_type_list[choice]:
-          filtered_dev_list.append(k)
-      filtered_dev_list.sort()
-      DeviceListMenu(filtered_dev_list)
-
-    except Exception as e:
-      if debug:
-        print('Exception caught: %s' % e)
-      pass
-    if debug:
-      time.sleep(1)
-
-def EnvMenu():
-  while True:
-    PrintMenu(env_list)
-    # get chosen input
-    choice = raw_input(">> ")
-    try:
-      # If 'q' exit while loop (return)
-      if choice.lower() == 'q':
-        return
-      choice = ParseChoice(choice)
-
-      # Create a filtered list and call device list menu
-      filtered_dev_list = []
-      for k,v in full_device_dict.items():
-        if v['env'] == env_list[choice]:
-          filtered_dev_list.append(k)
-      filtered_dev_list.sort()
-      DeviceListMenu(filtered_dev_list)
-
-    except Exception as e:
-      if debug:
-        print('Exception caught: %s' % e)
-      pass
-    if debug:
-      time.sleep(1)
 
 def SearchMenu():
   while True:
     PrintMenu([], show_quit=False)
     # get chosen input
-    choice = raw_input("Starts With >> ")
+    choice = raw_input("Search Query >> ")
     try:
+      # If 'q' exit while loop (return)
+      if choice.lower() == 'q':
+        return
       # Create a filtered list and call device list menu
       filtered_dev_list = []
       for k,v in full_device_dict.items():
-        if k.lower().startswith(choice.lower()):
+        if choice.lower() in k.lower():
           filtered_dev_list.append(k)
       filtered_dev_list.sort()
       if filtered_dev_list == []:
         print('!!!! No matching devices found !!!!')
         pause = raw_input('Any key to continue >> ')
-        return
-      DeviceListMenu(filtered_dev_list)
+      else:
+        DeviceListMenu(filtered_dev_list)
 
     except Exception as e:
-      if debug:
+      if DEBUG:
         print('Exception caught: %s' % e)
       pass
-    if debug:
+    if DEBUG:
       time.sleep(1)
-
-    return
 
 def DeviceListMenu(device_list):
   while True:
@@ -196,19 +102,22 @@ def DeviceListMenu(device_list):
       # If 'q' exit while loop (return)
       if choice.lower() == 'q':
         return
-      choice = ParseChoice(choice)
+      choice_dict = ParseChoice(choice)
 
       # SSH to chosen device
-      conn = BuildConn(device_list,choice)
+      conn = BuildConn(device_list,choice_dict)
       print("CONNECT: 'ssh %s'" % (conn))
       os.system('ssh ' + conn)
     except Exception as e:
-      if debug:
+      if DEBUG:
         print('Exception caught: %s' % e)
       pass
-    if debug:
+    if DEBUG:
       time.sleep(1)
 
 if __name__ == "__main__":
-  TopMenu()
+  PrintMenu([], show_quit=False)
+  defaultid = getUserID('prompt')
+  full_device_dict,full_device_list = loadDevices('file')
+  SearchMenu()
 

@@ -163,7 +163,7 @@ def SearchMenu():
   while True:
     PrintMenu([])
     # get chosen input
-    choice = input("Starts With >> ")
+    choice = input("Search Query >> ")
     try:
       # If 'q' exit while loop (return)
       if choice.lower() == 'q':
@@ -172,7 +172,8 @@ def SearchMenu():
       # Create a filtered list and call device list menu
       filtered_dev_list = []
       for k,v in full_device_dict.items():
-        if k.lower().startswith(choice.lower()):
+        if choice.lower() in k.lower():
+#        if k.lower().startswith(choice.lower()):
           filtered_dev_list.append(k)
       filtered_dev_list.sort()
       DeviceListMenu(filtered_dev_list)

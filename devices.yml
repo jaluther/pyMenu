@@ -1,28 +1,10 @@
 ---
-# Example data to show different valid keys
-#
-# <parent key name>: display name in menu options (i.e. vsrx1, nxos1)
-# host: fqdn or ip address, used for SSH connection
-# id: username used for connection.  If left out default user id will be used
-# devType: used in menu to give filtered results
-#
 vsrx1:
   host: vsrx1
-  dev_type: junos
-  env: prod
 nxos1:
   host: 192.168.229.55
-  id: admin
-  dev_type: nxos
-  env: dev
 Nxos2:
   host: nxos2
-  id: admin
-  dev_type: nxos
-  env: prod
 bigip5:
   host: bigip5
-  id: root
-  dev_type: bigip
-  env: prod
 
