@@ -6,7 +6,8 @@ import os,time
 import yaml,json
 
 DEBUG = False
-DEVICES_FILE = 'devices.yml'
+DEVICES_FILE = 'inventory.yml'
+OLD_SSH_MODELS = ['screenos']
 
 def loadDevices(option):
   if option == 'file':
@@ -58,27 +59,39 @@ def BuildConn(device_list,choice_dict):
   # build out connection string i.e. username@ip/hostname
   choice = choice_dict['number']
   chosen_device = device_list[choice]
+  # determine user id
   if 'id' in choice_dict:
     uid = choice_dict['id']
   else:
     uid = defaultid
-  conn = '%s@%s' % (uid, full_device_dict[chosen_device]['host'])
+  # determine if old ciphers should be used
+  protocol = 'ssh'
+  if 'model' in full_device_dict[chosen_device]:
+    if full_device_dict[chosen_device]['model'] in OLD_SSH_MODELS:
+      protocol = 'ssh -c 3des-cbc'
+  conn = '%s %s@%s' % (protocol, uid, full_device_dict[chosen_device]['ip'])
   return conn
 
 def SearchMenu():
   while True:
     PrintMenu([], show_quit=False)
     # get chosen input
-    choice = raw_input("Search Query >> ")
+    query = raw_input("Search Query >> ")
     try:
       # If 'q' exit while loop (return)
-      if choice.lower() == 'q':
+      if query.lower() == 'q':
         return
       # Create a filtered list and call device list menu
       filtered_dev_list = []
       for k,v in full_device_dict.items():
-        if choice.lower() in k.lower():
+        if query.lower() in k.lower():
           filtered_dev_list.append(k)
+        if 'vendor' in v:
+          if query.lower() == v['vendor'].lower():
+            filtered_dev_list.append(k)
+        if 'model' in v:
+          if query.lower() == v['model'].lower():
+            filtered_dev_list.append(k)
       filtered_dev_list.sort()
       if filtered_dev_list == []:
         print('!!!! No matching devices found !!!!')
@@ -106,8 +119,8 @@ def DeviceListMenu(device_list):
 
       # SSH to chosen device
       conn = BuildConn(device_list,choice_dict)
-      print("CONNECT: 'ssh %s'" % (conn))
-      os.system('ssh ' + conn)
+      print("CONNECT: '%s'" % (conn))
+      os.system(conn)
     except Exception as e:
       if DEBUG:
         print('Exception caught: %s' % e)
