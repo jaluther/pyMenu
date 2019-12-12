@@ -81,7 +81,8 @@ def SearchMenu():
       # If 'q' exit while loop (return)
       if query.lower() == 'q':
         return
-      # Create a filtered list and call device list menu
+
+      # Search for matches
       filtered_dev_list = []
       for k,v in full_device_dict.items():
         if query.lower() in k.lower():
@@ -92,7 +93,12 @@ def SearchMenu():
         if 'model' in v:
           if query.lower() == v['model'].lower():
             filtered_dev_list.append(k)
+
+      # remove duplicates and sort list
+      filtered_dev_list = list(dict.fromkeys(filtered_dev_list))
       filtered_dev_list.sort()
+
+      # if list isn't empty, create menu
       if filtered_dev_list == []:
         print('!!!! No matching devices found !!!!')
         pause = raw_input('Any key to continue >> ')
