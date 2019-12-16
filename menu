@@ -68,7 +68,7 @@ def BuildConn(device_list,choice_dict):
   protocol = 'ssh'
   if 'model' in full_device_dict[chosen_device]:
     if full_device_dict[chosen_device]['model'] in OLD_SSH_MODELS:
-      protocol = 'ssh -c 3des-cbc'
+      protocol = 'ssh -oHostKeyAlgorithms=+ssh-dss -c 3des-cbc'
   conn = '%s %s@%s' % (protocol, uid, full_device_dict[chosen_device]['ip'])
   return conn
 
