@@ -2,7 +2,7 @@
 # Written by: James Luther
 # https://github.com/jaluther/pyMenu
 
-import os,time
+import os,time,copy
 import yaml,json
 
 DEBUG = False
@@ -72,6 +72,28 @@ def BuildConn(device_list,choice_dict):
   conn = '%s %s@%s' % (protocol, uid, full_device_dict[chosen_device]['ip'])
   return conn
 
+def queryDevList(query_list,device_dict):
+  # recursively filter results with multiple query terms
+  qlist = copy.deepcopy(query_list)
+  if len(qlist) == 0:
+    filtered_dev_list = []
+    for k,v in device_dict.items():
+      filtered_dev_list.append(k)
+    return filtered_dev_list
+  else:
+    filtered_dev_dict = {}
+    q = qlist.pop()
+    for k,v in device_dict.items():
+      if q.lower() in k.lower():
+        filtered_dev_dict[k] = v
+      if 'vendor' in v:
+        if q.lower() == v['vendor'].lower():
+          filtered_dev_dict[k] = v
+      if 'model' in v:
+        if q.lower() == v['model'].lower():
+          filtered_dev_dict[k] = v
+    return queryDevList(qlist,filtered_dev_dict)
+
 def SearchMenu():
   while True:
     PrintMenu([], show_quit=False)
@@ -82,17 +104,10 @@ def SearchMenu():
       if query.lower() == 'q':
         return
 
+      query_list = query.split(' ')
+
       # Search for matches
-      filtered_dev_list = []
-      for k,v in full_device_dict.items():
-        if query.lower() in k.lower():
-          filtered_dev_list.append(k)
-        if 'vendor' in v:
-          if query.lower() == v['vendor'].lower():
-            filtered_dev_list.append(k)
-        if 'model' in v:
-          if query.lower() == v['model'].lower():
-            filtered_dev_list.append(k)
+      filtered_dev_list = queryDevList(query_list,full_device_dict)
 
       # remove duplicates and sort list
       filtered_dev_list = list(dict.fromkeys(filtered_dev_list))
