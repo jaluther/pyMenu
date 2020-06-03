@@ -8,6 +8,7 @@ import yaml,json
 DEBUG = False
 DEVICES_FILE = 'inventory.yml'
 OLD_SSH_MODELS = ['screenos']
+#DEFAULT_ID = 'my_tacacs_id'
 
 def loadDevices(option):
   if option == 'file':
@@ -55,7 +56,7 @@ def ParseChoice(choice):
     print(choice_dict)
   return choice_dict
 
-def BuildConn(device_list,choice_dict):
+def BuildConnOLd(device_list,choice_dict):
   # build out connection string i.e. username@ip/hostname
   choice = choice_dict['number']
   chosen_device = device_list[choice]
@@ -70,6 +71,30 @@ def BuildConn(device_list,choice_dict):
     if full_device_dict[chosen_device]['model'] in OLD_SSH_MODELS:
       protocol = 'ssh -oHostKeyAlgorithms=+ssh-dss -c 3des-cbc'
   conn = '%s %s@%s' % (protocol, uid, full_device_dict[chosen_device]['ip'])
+  return conn
+
+def BuildConn(device_list,choice_dict):
+  # build out connection string i.e. username@ip/hostname
+  choice = choice_dict['number']
+  chosen_device = device_list[choice]
+  # determine user id
+  if 'id' in choice_dict:
+    uid = choice_dict['id']
+  else:
+    uid = defaultid
+  protocol = 'ssh'
+  ## Determine SSH ciphers based on model
+  #if 'model' in full_device_dict[chosen_device]:
+  #  if full_device_dict[chosen_device]['model'] in OLD_SSH_MODELS:
+  #    protocol = 'ssh -oHostKeyAlgorithms=+ssh-dss -c 3des-cbc'
+  ## Determine telnet/ssh based on transport parameter
+  if 'transport' in full_device_dict[chosen_device] and full_device_dict[chosen_device]['transport'] != None:
+    protocol = full_device_dict[chosen_device]['transport']
+  # build connectiom string and return
+  if protocol == 'telnet':
+    conn = '%s %s' % (protocol, full_device_dict[chosen_device]['ip'])
+  else:
+    conn = '%s %s@%s' % (protocol, uid, full_device_dict[chosen_device]['ip'])
   return conn
 
 def queryDevList(query_list,device_dict):
@@ -91,6 +116,18 @@ def queryDevList(query_list,device_dict):
           filtered_dev_dict[k] = v
       if 'model' in v:
         if q.lower() == v['model'].lower():
+          filtered_dev_dict[k] = v
+      if 'Country' in v and v['Country'] != None:
+        if q.lower() == v['Country'].lower():
+          filtered_dev_dict[k] = v
+      if 'City' in v and v['City'] != None:
+        if q.lower() == v['City'].lower():
+          filtered_dev_dict[k] = v
+      if 'LocationCode' in v and v['LocationCode'] != None:
+        if q.lower() == v['LocationCode'].lower():
+          filtered_dev_dict[k] = v
+      if 'BuildingID' in v and v['BuildingID'] != None:
+        if q.lower() in v['BuildingID'].lower():
           filtered_dev_dict[k] = v
     return queryDevList(qlist,filtered_dev_dict)
 
@@ -151,7 +188,10 @@ def DeviceListMenu(device_list):
 
 if __name__ == "__main__":
   PrintMenu([], show_quit=False)
-  defaultid = getUserID('prompt')
+  if 'DEFAULT_ID' in globals():
+    defaultid = DEFAULT_ID
+  else:
+    defaultid = getUserID('prompt')
   full_device_dict,full_device_list = loadDevices('file')
   SearchMenu()
 

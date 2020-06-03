@@ -3,16 +3,31 @@ vsrx1:
   ip: vsrx1
   vendor: junos
   model: srx
+  City: London
+  Country: UK
+  LocationCode: DC1
+  BuildingID: 002
 nxos1:
   ip: 192.168.229.55
   vendor: cisco
   model: nxos
+  City: London
+  Country: UK
+  LocationCode: DC2
+  BuildingID: 001
 Nxos2:
   ip: nxos2
   vendor: cisco
   model: nxos
+  City: London
+  Country: UK
+  LocationCode: DC2
+  BuildingID: 001
 bigip3:
   ip: bigip3
   vendor: f5
   model: bigip
-
+  City: Paris
+  Country: France
+  LocationCode: DC1
+  BuildingID: 005
