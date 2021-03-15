@@ -1,29 +1,14 @@
-#!/usr/bin/env python3
+#!/usr/bin/python
 # Written by: James Luther
 # https://github.com/jaluther/pyMenu
 
-import os,time,copy,getpass
+import os,time,copy
 import yaml,json
-from sys import argv
 
 DEBUG = False
-DEVICES_FILE = '/usr/local/etc/inventory.yaml'
+DEVICES_FILE = 'inventory.yml'
 OLD_SSH_MODELS = ['screenos']
-#DEFAULT_ID = 'jluth_wpp'
-
-# Load user settings
-USER = getpass.getuser()
-SETTINGS_FILE = '/usr/local/etc/menu_settings.yaml'
-with open(SETTINGS_FILE, 'r') as stream:
-  user_settings = yaml.safe_load(stream)
-
-try:
-  GTAC_ID = user_settings[USER]['GTAC_ID']
-  IPSOFT_ID = user_settings[USER]['IPSOFT_ID']
-  SPRINT_ID = user_settings[USER]['SPRINT_ID']
-except Exception as e:
-  print('YOU MUST ADD USER ID TO: /usr/local/etc/menu_settings.yaml')
-  quit()
+#DEFAULT_ID = 'my_tacacs_id'
 
 def loadDevices(option):
   if option == 'file':
@@ -38,7 +23,7 @@ def getUserID(option):
   if option == 'linux':
     return os.getenv('USER')
   if option == 'prompt':
-    return input("Username: >> ")
+    return raw_input("Username: >> ")
 
 def PrintMenu(menu_list, show_quit=True):
   # clear screen
@@ -95,18 +80,13 @@ def BuildConn(device_list,choice_dict):
   # determine user id
   if 'id' in choice_dict:
     uid = choice_dict['id']
-  elif 'credentials' in full_device_dict[chosen_device] and full_device_dict[chosen_device]['credentials'] != None:
-    if full_device_dict[chosen_device]['credentials'] == 'GTAC':
-      uid = GTAC_ID
-    if full_device_dict[chosen_device]['credentials'] == 'IPSoft':
-      uid = IPSOFT_ID
-    if full_device_dict[chosen_device]['credentials'] == 'Sprint':
-      uid = SPRINT_ID
-    if full_device_dict[chosen_device]['credentials'].startswith('ipautomata'):
-      uid = 'ipautomata'
   else:
-    uid = GTAC_ID
+    uid = defaultid
   protocol = 'ssh'
+  ## Determine SSH ciphers based on model
+  #if 'model' in full_device_dict[chosen_device]:
+  #  if full_device_dict[chosen_device]['model'] in OLD_SSH_MODELS:
+  #    protocol = 'ssh -oHostKeyAlgorithms=+ssh-dss -c 3des-cbc'
   ## Determine telnet/ssh based on transport parameter
   if 'transport' in full_device_dict[chosen_device] and full_device_dict[chosen_device]['transport'] != None:
     protocol = full_device_dict[chosen_device]['transport']
@@ -155,7 +135,7 @@ def SearchMenu():
   while True:
     PrintMenu([], show_quit=False)
     # get chosen input
-    query = input("Search Query >> ")
+    query = raw_input("Search Query >> ")
     try:
       # If 'q' exit while loop (return)
       if query.lower() == 'q':
@@ -173,7 +153,7 @@ def SearchMenu():
       # if list isn't empty, create menu
       if filtered_dev_list == []:
         print('!!!! No matching devices found !!!!')
-        pause = input('Any key to continue >> ')
+        pause = raw_input('Any key to continue >> ')
       else:
         DeviceListMenu(filtered_dev_list)
 
@@ -188,7 +168,7 @@ def DeviceListMenu(device_list):
   while True:
     PrintMenu(device_list)
     # get chosen input
-    choice = input(">> ")
+    choice = raw_input(">> ")
     try:
       # If 'q' exit while loop (return)
       if choice.lower() == 'q':
@@ -207,50 +187,11 @@ def DeviceListMenu(device_list):
       time.sleep(1)
 
 if __name__ == "__main__":
-  if len(argv) > 1:
-    if argv[1] == '-s' or argv[1] == '--search-terms':
-      print('All search terms driven by data in Solarwinds')
-      print('\nSEARCH TERMS::')
-      os.system('cat /usr/local/etc/inventory.yaml | grep BuildingID | sort -u')
-      os.system('cat /usr/local/etc/inventory.yaml | grep LocationCode | sort -u')
-      os.system('cat /usr/local/etc/inventory.yaml | grep Country | sort -u')
-      os.system('cat /usr/local/etc/inventory.yaml | grep City | sort -u')
-      os.system('cat /usr/local/etc/inventory.yaml | grep vendor | sort -u')
-      os.system('cat /usr/local/etc/inventory.yaml | grep model | sort -u')
-    else:
-      print('USAGE:')
-      print('\t menu\t\t\t\tRun the menu')
-      print('\t menu -h | --help\t\tBring up this menu')
-      print('\t menu -s | --search-terms\tList valid search terms')
-      print('\nUSING SEARCH:')
-      print('\tMultiple search terms can be used, space seperated, case insensitive')
-      print('\tCan search based on data in Solarwinds:')
-      print('\t\t* Building ID')
-      print('\t\t* Location Code')
-      print('\t\t* Country')
-      print('\t\t* City')
-      print('\t\t* Vendor')
-      print('\t\t* Model')
-      print('\n\tExample search terms:')
-      print('\t\t* westgate')
-      print('\t\t* 2499')
-      print('\t\t* pan')
-      print('\t\t* uk asa')
-      print('\t\t* uk nxos')
-      print('\t\t* usa fw')
-      print('\t\t* usa 101')
-      print('\nUSER ID:')
-      print('\tThe menu will use the default credential type stored in Solarwinds')
-      print('\tBefore using the menu you must add your default user ID to:')
-      print('\t\t/usr/local/etc/menu_settings.yaml')
-      print('\n\tYou can overide the default credential type on any menu item,')
-      print('\tto do this specify the ID you wish to use after the menu item.')
-      print('\tFor example:')
-      print('\t\t1 ipautomata')
-      print('\t\t99 admin')
-      print('')
-    quit()
   PrintMenu([], show_quit=False)
+  if 'DEFAULT_ID' in globals():
+    defaultid = DEFAULT_ID
+  else:
+    defaultid = getUserID('prompt')
   full_device_dict,full_device_list = loadDevices('file')
   SearchMenu()
 
