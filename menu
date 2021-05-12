@@ -64,6 +64,10 @@ def PrintMenu(menu_list, show_quit=True):
   # print Table
   if len(pt._rows) > 0:
     pt.sortby = 'index'
+    pt.align['hostname'] = 'l'
+    pt.align['IP'] = 'l'
+    pt.align['City'] = 'l'
+    pt.align['Building ID'] = 'l'
     print(pt)
   # print trailer
   if show_quit:
