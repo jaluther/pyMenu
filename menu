@@ -5,6 +5,7 @@
 import os,time,copy,getpass
 import yaml,json
 from sys import argv
+from prettytable import PrettyTable
 
 DEBUG = False
 DEVICES_FILE = '/usr/local/etc/inventory.yaml'
@@ -41,15 +42,29 @@ def getUserID(option):
     return input("Username: >> ")
 
 def PrintMenu(menu_list, show_quit=True):
-  # clear screen
-  os.system('clear')
+  # clear screen (using "clear" may clear scrollback on some version of linux)
+  os.system("printf '\33[H\33[2J'")
   # Print header
   print('#'*30)
   print('# SSH Menu')
   print('#'*30)
-  # created numbered list (increment to start at 1)
+  # Create Exmpty table
+  pt = PrettyTable()
+  pt.field_names = ['index', 'hostname', 'IP', 'City', 'Building ID']
+  pt.clear_rows()
+  # Add Rows
   for i in menu_list:
-    print('%s\t%s' % (menu_list.index(i)+1, i))
+    row = [menu_list.index(i)+1,
+           i,
+           full_device_dict[i]['ip'],
+           full_device_dict[i]['City'],
+           full_device_dict[i]['BuildingID'],
+         ]
+    pt.add_row(row)
+  # print Table
+  if len(pt._rows) > 0:
+    pt.sortby = 'index'
+    print(pt)
   # print trailer
   if show_quit:
     print('')
