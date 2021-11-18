@@ -125,10 +125,12 @@ def BuildConn(device_list,choice_dict):
       uid = 'ipautomata'
   else:
     uid = GTAC_ID
-  protocol = 'ssh'
   ## Determine telnet/ssh based on transport parameter
+  protocol = 'ssh'
   if 'transport' in full_device_dict[chosen_device] and full_device_dict[chosen_device]['transport'] != None:
-    protocol = full_device_dict[chosen_device]['transport']
+    protocol = full_device_dict[chosen_device]['transport'].lower()
+    if protocol[:3] == 'ssh':
+      protocol = 'ssh'
   # build connectiom string and return
   if protocol == 'telnet':
     conn = '%s %s' % (protocol, full_device_dict[chosen_device]['ip'])
