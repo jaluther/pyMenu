@@ -159,10 +159,10 @@ def queryDevList(query_list,device_dict):
         if q.lower() == v['model'].lower():
           filtered_dev_dict[k] = v
       if 'Country' in v and v['Country'] != None:
-        if q.lower() == v['Country'].lower():
+        if q.lower() in v['Country'].lower():
           filtered_dev_dict[k] = v
       if 'City' in v and v['City'] != None:
-        if q.lower() == v['City'].lower():
+        if q.lower() in v['City'].lower():
           filtered_dev_dict[k] = v
       if 'LocationCode' in v and v['LocationCode'] != None:
         if q.lower() == v['LocationCode'].lower():
