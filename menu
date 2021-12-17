@@ -92,6 +92,7 @@ def ParseChoice(choice):
 
 def BuildConnOLd(device_list,choice_dict):
   # build out connection string i.e. username@ip/hostname
+  # OLD - DISABLED - based on data extract from entuity
   choice = choice_dict['number']
   chosen_device = device_list[choice]
   # determine user id
@@ -109,6 +110,7 @@ def BuildConnOLd(device_list,choice_dict):
 
 def BuildConn(device_list,choice_dict):
   # build out connection string i.e. username@ip/hostname
+  # Based on data model extracted from Solarwinds
   choice = choice_dict['number']
   chosen_device = device_list[choice]
   # determine user id
@@ -232,12 +234,12 @@ if __name__ == "__main__":
     if argv[1] == '-s' or argv[1] == '--search-terms':
       print('All search terms driven by data in Solarwinds')
       print('\nSEARCH TERMS::')
-      os.system('cat /usr/local/etc/inventory.yaml | grep BuildingID | sort -u')
-      os.system('cat /usr/local/etc/inventory.yaml | grep LocationCode | sort -u')
-      os.system('cat /usr/local/etc/inventory.yaml | grep Country | sort -u')
-      os.system('cat /usr/local/etc/inventory.yaml | grep City | sort -u')
-      os.system('cat /usr/local/etc/inventory.yaml | grep vendor | sort -u')
-      os.system('cat /usr/local/etc/inventory.yaml | grep model | sort -u')
+      os.system('cat %s | grep BuildingID | sort -u' % DEVICES_FILE)
+      os.system('cat %s | grep LocationCode | sort -u' % DEVICES_FILE)
+      os.system('cat %s | grep Country | sort -u' % DEVICES_FILE)
+      os.system('cat %s | grep City | sort -u' % DEVICES_FILE)
+      os.system('cat %s | grep vendor | sort -u' % DEVICES_FILE)
+      os.system('cat %s | grep model | sort -u' % DEVICES_FILE)
     else:
       print('USAGE:')
       print('\t menu\t\t\t\tRun the menu')
